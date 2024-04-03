@@ -15,7 +15,7 @@ function App() {
     try {
       const response = await axios.get('https://geektrust.s3-ap-southeast-1.amazonaws.com/adminui-problem/members.json');
       setData(response.data);
-      setError(null)
+      setError
     } catch (error) {
       setError('Failed to fetch data');
       setData([])
