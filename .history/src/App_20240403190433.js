@@ -17,7 +17,7 @@ function App() {
       setData(response.data);
       setError(null)
     } catch (error) {
-      alert('fetchDataFailed');
+      setError('fetchDataFailed');
       setData([])
     }
   };
