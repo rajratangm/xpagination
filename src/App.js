@@ -68,67 +68,144 @@
 
 
 
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './App.css'; // Import CSS file
+// import React, { useState, useEffect } from 'react';
+// import axios from 'axios';
+// import './App.css'; // Import CSS file
+
+// function App() {
+//   const [data, setData] = useState([]);
+//   const [currentPage, setCurrentPage] = useState(1);
+//   const [error, setError] = useState(null);
+
+//   useEffect(() => {
+//     fetchData();
+//   }, []);
+
+//   const fetchData = async () => {
+//     try {
+//       const response = await axios.get('https://geektrust.s3-ap-southeast-1.amazonaws.com/adminui-problem/members.json');
+//       setData(response.data);
+//       setError(null);
+//     } catch (error) {
+//       setError('fetchDataFailed');
+//       setData([]);
+//     }
+//   };
+
+//   const handleNextPage = () => {
+//     setCurrentPage(currentPage + 1);
+//   };
+
+//   const handlePreviousPage = () => {
+//     setCurrentPage(currentPage - 1);
+//   };
+
+//   return (
+//     <div className="container">
+//       {error && <div className="error">{error}</div>}
+//       <table>
+//         <thead className="table-head">
+//           <tr>
+//             <th className="bold" style={{ color: 'red' }}>Name</th>
+//             <th className="bold" style={{ color: 'red' }}>Email</th>
+//             <th className="bold" style={{ color: 'red' }}>Role</th>
+//           </tr>
+//         </thead>
+//         <tbody>
+//           {data.slice((currentPage - 1) * 10, currentPage * 10).map((item, index) => (
+//             <React.Fragment key={index}>
+//               <tr>
+//                 <td>{item.name}</td>
+//                 <td>{item.email}</td>
+//                 <td>{item.role}</td>
+//               </tr>
+//               <tr className="line"></tr>
+//             </React.Fragment>
+//           ))}
+//         </tbody>
+//       </table>
+//       <div className="pagination">
+//         <button onClick={handlePreviousPage} disabled={currentPage === 1}>Previous</button>
+//         <span className="current-page">Page {currentPage}</span>
+//         <button onClick={handleNextPage}>Next</button>
+//       </div>
+//     </div>
+//   );
+// }
+
+// export default App;
+
+
+
+import React, { useState, useEffect } from "react";
+import ReactPaginate from "react-paginate";
+import "./styles.css";
 
 function App() {
   const [data, setData] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(0);
 
   useEffect(() => {
+    // Fetch data from API
     fetchData();
   }, []);
 
-  const fetchData = async () => {
-    try {
-      const response = await axios.get('https://geektrust.s3-ap-southeast-1.amazonaws.com/adminui-problem/members.json');
-      setData(response.data);
-      setError(null);
-    } catch (error) {
-      setError('fetchDataFailed');
-      setData([]);
-    }
+  const fetchData = () => {
+    // Perform API request to fetch data
+    fetch(
+      "https://geektrust.s3-ap-southeast-1.amazonaws.com/adminui-problem/members.json"
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        setData(data);
+      })
+      .catch((error) => {
+        alert("Failed to fetch data. Please try again later.");
+        console.error("Error fetching data:", error);
+      });
   };
 
-  const handleNextPage = () => {
-    setCurrentPage(currentPage + 1);
+  const handlePageClick = ({ selected }) => {
+    setCurrentPage(selected);
   };
 
-  const handlePreviousPage = () => {
-    setCurrentPage(currentPage - 1);
-  };
+  const itemsPerPage = 10;
+  const offset = currentPage * itemsPerPage;
+  const pageCount = Math.ceil(data.length / itemsPerPage);
+  const currentData = data.slice(offset, offset + itemsPerPage);
 
   return (
     <div className="container">
-      {error && <div className="error">{error}</div>}
+      <h1>Employeee data table</h1>
       <table>
-        <thead className="table-head">
-          <tr>
-            <th className="bold" style={{ color: 'red' }}>Name</th>
-            <th className="bold" style={{ color: 'red' }}>Email</th>
-            <th className="bold" style={{ color: 'red' }}>Role</th>
+        <thead>
+          <tr className="tableheading">
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
           </tr>
         </thead>
         <tbody>
-          {data.slice((currentPage - 1) * 10, currentPage * 10).map((item, index) => (
-            <React.Fragment key={index}>
-              <tr>
-                <td>{item.name}</td>
-                <td>{item.email}</td>
-                <td>{item.role}</td>
-              </tr>
-              <tr className="line"></tr>
-            </React.Fragment>
+          {currentData.map((item, index) => (
+            <tr key={index}>
+              <td>{item.id}</td>
+              <td>{item.name}</td>
+              <td>{item.email}</td>
+              <td>{item.role}</td>
+            </tr>
           ))}
         </tbody>
       </table>
-      <div className="pagination">
-        <button onClick={handlePreviousPage} disabled={currentPage === 1}>Previous</button>
-        <span className="current-page">Page {currentPage}</span>
-        <button onClick={handleNextPage}>Next</button>
-      </div>
+      <ReactPaginate
+        previousLabel="Previous"
+        nextLabel="Next"
+        breakLabel="..."
+        pageCount={pageCount}
+        onPageChange={handlePageClick}
+        containerClassName="pagination"
+        activeClassName="active"
+      />
     </div>
   );
 }
